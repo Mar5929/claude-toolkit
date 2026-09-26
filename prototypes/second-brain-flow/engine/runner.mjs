@@ -1,5 +1,5 @@
 // The step runner: a stack of workflows, named exit checks, and named auto actions.
-import { now, isAfter, refuse } from './core.mjs';
+import { now, isAfter, refuse, shortId } from './core.mjs';
 import { loadConfig } from './project.mjs';
 import { loadWorkflow } from './workflows.mjs';
 import { findItem, listItems, renderItem } from './items.mjs';
@@ -378,6 +378,7 @@ export function beginTurn(ctx, { prompt, forcedRoute = null, trustPermission = n
   }
   const at = now();
   session.turn = {
+    id: shortId('turn'),
     n: (session.turn?.n || 0) + 1,
     promptAt: at,
     routed: false,
@@ -411,6 +412,7 @@ export function beginNotificationTurn(ctx, { prompt }) {
   }
   session.stack = session.stack.filter((f) => f.workflow !== 'turn');
   session.turn = {
+    id: shortId('turn'),
     n: (session.turn?.n || 0) + 1,
     promptAt: now(),
     routed: true,

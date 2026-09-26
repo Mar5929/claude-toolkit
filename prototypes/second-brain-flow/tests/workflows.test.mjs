@@ -321,7 +321,7 @@ test('questions: a repeated question is asked again, not added twice; refine can
 });
 
 test('flow init sets up the folder it runs in, and that folder then stops root discovery', () => {
-  const outer = makeProject(); // has .git
+  const outer = makeProject({ init: false }); // has .git
   const inner = path.join(outer, 'demo');
   fs.mkdirSync(inner);
   assert.match(ok(inner, ['init']), new RegExp(`Set up memory/ and work/ in ${inner.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`));

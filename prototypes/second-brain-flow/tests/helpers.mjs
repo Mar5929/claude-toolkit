@@ -10,9 +10,15 @@ import { loadSession } from '../engine/project.mjs';
 
 const PLUGIN_BIN = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..', 'bin');
 
-export function makeProject() {
+// A temporary project with a .git folder. It is set up with `flow init`
+// unless init is false, since ordinary flow commands no longer set one up.
+export function makeProject({ init = true } = {}) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'sbf-test-'));
   fs.mkdirSync(path.join(dir, '.git'));
+  if (init) {
+    const r = run(['init'], { cwd: dir, env: {}, stdin: () => '' });
+    assert.equal(r.code, 0, r.stderr);
+  }
   return dir;
 }
 

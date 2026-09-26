@@ -189,8 +189,10 @@ Each session has a state file at `.flow/sessions/<session id>.json`. The
 `.flow/` also holds the librarian job queue (`queue/`), the file snapshots undo
 uses (`history/`), locks, and an audit log. Agents cannot write to `.flow/`.
 
-The session start hook writes `FLOW_SESSION_ID` to Claude Code's environment
-file, so every `flow` command run through Bash finds its own session. Without
+The session start hook writes `FLOW_SESSION_ID` and `FLOW_PROJECT_ROOT` to
+Claude Code's environment file, so every `flow` command run through Bash finds
+its own session and the session's project, whatever the cwd. The hooks take
+the root from `CLAUDE_PROJECT_DIR`. Without
 that variable, `flow` uses a session named `manual`. A Bash command that sets
 or clears `FLOW_SESSION_ID` or `FLOW_PROJECT_ROOT` is refused.
 
@@ -473,3 +475,10 @@ It is not registered in either marketplace. Try it with
   `bin/` (proved with a `claude -p` run where Bash was not pre-approved);
   `--file` reads only regular files inside the project; front-matter block
   scalars are kept or replaced whole.
+- 2026-09-26: After the fourth review: the project root is the session's
+  (`CLAUDE_PROJECT_DIR` in hooks, `FLOW_PROJECT_ROOT` written by SessionStart
+  for the CLI), not the cwd's. The write gate protects that root from any cwd;
+  from a nested repository, automatic approval and owner-gated commands are
+  refused. Only `flow init` and SessionStart set up a project. Trust and undo
+  permissions are recorded in `.flow/owner/` and count only for the turn id
+  the prompt hook set.

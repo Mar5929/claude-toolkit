@@ -87,3 +87,20 @@ export function updateSession(root, id, fn) {
     return result;
   });
 }
+
+// The owner's commands for the current turn (trust, undo), written only by the
+// prompt hook to .flow/owner/<session>.json, a folder the agent's tools are
+// refused. A permission counts only for the turn id that the prompt hook set.
+function ownerFile(root, id) {
+  return path.join(projectPaths(root).flow, 'owner', `${String(id).replace(/[^A-Za-z0-9_.-]/g, '_')}.json`);
+}
+
+export function recordOwnerCommands(root, sessionId, turnId, commands) {
+  writeJson(ownerFile(root, sessionId), { turn: turnId, at: now(), ...commands });
+}
+
+export function ownerAllows(root, session, kind, value) {
+  const record = readJson(ownerFile(root, session.id));
+  if (!record || !session.turn?.id || record.turn !== session.turn.id) return false;
+  return record[kind] != null && record[kind] === value;
+}

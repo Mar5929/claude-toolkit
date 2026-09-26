@@ -12,7 +12,7 @@ import { splitCommands } from '../engine/shell.mjs';
 const PLUGIN = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 test('SessionStart initializes the project, writes FLOW_SESSION_ID, and injects context', () => {
-  const dir = makeProject();
+  const dir = makeProject({ init: false });
   const envFile = path.join(dir, 'env.sh');
   fs.writeFileSync(envFile, 'export OTHER=1\n');
   const out = sessionStart(dir, 'sess-42', { CLAUDE_ENV_FILE: envFile });
@@ -21,7 +21,7 @@ test('SessionStart initializes the project, writes FLOW_SESSION_ID, and injects 
   assert.match(out.hookSpecificOutput.additionalContext, /Memory index \(memory\/INDEX\.md\)/);
   assert.match(out.hookSpecificOutput.additionalContext, /Focus \(memory\/FOCUS\.md\)/);
   assert.ok(out.hookSpecificOutput.additionalContext.length < 10000);
-  assert.equal(fs.readFileSync(envFile, 'utf8'), "export OTHER=1\nexport FLOW_SESSION_ID='sess-42'\n");
+  assert.equal(fs.readFileSync(envFile, 'utf8'), `export OTHER=1\nexport FLOW_SESSION_ID='sess-42'\nexport FLOW_PROJECT_ROOT='${dir}'\n`);
   assert.ok(fs.existsSync(path.join(dir, 'memory', 'config.json')));
   assert.match(fs.readFileSync(path.join(dir, '.gitignore'), 'utf8'), /^\.flow\/$/m);
 });

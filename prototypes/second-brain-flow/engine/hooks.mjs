@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { PLUGIN_ROOT, findProjectRoot, projectPaths, readText, isAfter } from './core.mjs';
-import { ensureInit, loadConfig, loadSession, updateSession } from './project.mjs';
+import { ensureInit, isInitialized, loadConfig, loadSession, updateSession, recordOwnerCommands, ownerAllows } from './project.mjs';
 import { savePhrase, beginTurn, beginNotificationTurn, top, stepOf, missingForStep, describe } from './runner.mjs';
 import { markDispatched, getJob } from './memory.mjs';
 import { splitCommands, programOf, isFlowProgram, plainForAllow } from './shell.mjs';
@@ -22,9 +22,19 @@ const WRITE_PROGRAMS = new Set(['tee', 'mv', 'cp', 'rm', 'touch', 'mkdir', 'rmdi
 // Claude Code reports a plugin agent under its plugin-scoped name.
 export const LIBRARIAN_AGENT = 'second-brain-flow:memory-librarian';
 
+// The session's project root: CLAUDE_PROJECT_DIR, which Claude Code sets for
+// hooks. Only without it does the root come from walking up from the cwd.
 function rootFor(input, env) {
-  return findProjectRoot(input.cwd || process.cwd(), env);
+  if (env.CLAUDE_PROJECT_DIR) return path.resolve(env.CLAUDE_PROJECT_DIR);
+  return findProjectRoot(input.cwd || process.cwd(), {});
 }
+
+// The root a flow command run in this cwd would find without FLOW_PROJECT_ROOT.
+function cwdRootFor(input) {
+  return findProjectRoot(input.cwd || process.cwd(), {});
+}
+
+const shellQuote = (v) => `'${String(v).replace(/'/g, "'\\''")}'`;
 
 function sessionIdOf(input) {
   return String(input.session_id || 'manual').replace(/[^A-Za-z0-9_.-]/g, '_');
@@ -39,10 +49,11 @@ function clip(text, max) {
 
 export function sessionStart(input, env = process.env) {
   const root = rootFor(input, env);
+  // Set up only the session root, never a nested repository the cwd is in.
   ensureInit(root);
   const id = sessionIdOf(input);
   if (env.CLAUDE_ENV_FILE) {
-    fs.appendFileSync(env.CLAUDE_ENV_FILE, `export FLOW_SESSION_ID='${id}'\n`);
+    fs.appendFileSync(env.CLAUDE_ENV_FILE, `export FLOW_SESSION_ID=${shellQuote(id)}\nexport FLOW_PROJECT_ROOT=${shellQuote(root)}\n`);
   }
   const state = updateSession(root, id, (session) => {
     session.lastSource = input.source || null;
@@ -69,7 +80,7 @@ export function sessionStart(input, env = process.env) {
 
 export function userPromptSubmit(input, env = process.env) {
   const root = rootFor(input, env);
-  ensureInit(root);
+  if (!isInitialized(root)) return null;
   const prompt = String(input.prompt || '');
   if (NOTIFICATION.test(prompt)) {
     const note = updateSession(root, sessionIdOf(input), (session) => {
@@ -83,13 +94,19 @@ export function userPromptSubmit(input, env = process.env) {
   const save = savePhrase(prompt);
   const text = updateSession(root, sessionIdOf(input), (session) => {
     session.hooks = true;
-    return beginTurn({ root, session }, {
+    const out = beginTurn({ root, session }, {
       prompt,
       forcedRoute: save === 'force' ? 'remember' : null,
       saveHint: save === 'hint',
       trustPermission: trust ? trust[1].toLowerCase() : null,
       undoPermission: undo ? undo[1].toLowerCase() : null,
     });
+    // The permission that counts: tied to this turn's id, outside the session file.
+    recordOwnerCommands(root, session.id, session.turn.id, {
+      trust: trust ? trust[1].toLowerCase() : null,
+      undo: undo ? undo[1].toLowerCase() : null,
+    });
+    return out;
   });
   return { hookSpecificOutput: { hookEventName: 'UserPromptSubmit', additionalContext: `second-brain-flow:\n${text}` } };
 }
@@ -303,6 +320,9 @@ function isPluginFlow(program, args, cwd, env) {
   return Boolean(file) && realOrNull(file) === own;
 }
 
+// flow commands that act on an owner decision. [command, subcommand or null].
+const OWNER_GATED = [['trust', 'set'], ['memory', 'approve'], ['memory', 'reject'], ['memory', 'edit'], ['memory', 'undo'], ['item', 'approve'], ['item', 'stage']];
+
 // flow commands that still go through the normal permission prompt.
 const NO_AUTO_ALLOW = new Set(['init']);
 
@@ -317,6 +337,11 @@ export function preToolUse(input, env = process.env) {
   const ti = input.tool_input || {};
   const session = loadSession(root, sessionIdOf(input));
   const isSubagent = Boolean(input.agent_id);
+  // A nested repository (submodule, vendored repo, worktree) as the cwd would
+  // make a flow command find a different project. Owner checks and automatic
+  // approval are refused there.
+  const cwdRoot = cwdRootFor(input);
+  const rootsDiffer = path.resolve(cwdRoot) !== path.resolve(root);
 
   if (WRITE_TOOLS.has(tool)) {
     const area = protectedArea(root, cwd, ti.file_path || ti.notebook_path, env);
@@ -347,7 +372,10 @@ export function preToolUse(input, env = process.env) {
       if (cmd === 'turn') {
         return deny('`flow turn` is for hosts without the prompt hook. In Claude Code the prompt hook starts each turn. Run `flow status`.');
       }
-      if (cmd === 'trust' && sub === 'set' && session.turn?.trustPermission !== value) {
+      if (rootsDiffer && OWNER_GATED.some(([c, sc]) => c === cmd && (!sc || sc === sub))) {
+        return deny(`This shell is in ${cwdRoot}, a different project from the session's ${root}. Run \`cd ${root}\` first; owner-gated flow commands run only from the session's project.`);
+      }
+      if (cmd === 'trust' && sub === 'set' && !ownerAllows(root, session, 'trust', value)) {
         return deny(`Only the owner can change the memory mode. The owner types \`/second-brain-flow:trust ${value || 'on'}\`. Tell the owner that.`);
       }
       const forced = session.turn?.forcedRoute;
@@ -360,7 +388,7 @@ export function preToolUse(input, env = process.env) {
     if (segments.length === 1 && onlyFlow) {
       const { program, args } = programOf(segments[0].tokens);
       const flowArgs = isFlowProgram(program, args).args;
-      plainFlow = plainForAllow(command) && segments[0].tokens[0] === program
+      plainFlow = !rootsDiffer && plainForAllow(command) && segments[0].tokens[0] === program
         && !NO_AUTO_ALLOW.has(flowArgs[0]) && isPluginFlow(program, args, cwd, env);
     }
   }
@@ -379,6 +407,7 @@ export function preToolUse(input, env = process.env) {
 export function subagentStart(input, env = process.env) {
   if (String(input.agent_type || '') !== LIBRARIAN_AGENT) return null;
   const root = rootFor(input, env);
+  if (!isInitialized(root)) return null;
   const id = sessionIdOf(input);
   const marked = updateSession(root, id, (session) => {
     const jobs = markDispatched(root, id);

@@ -2,7 +2,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { findProjectRoot, Refusal, refuse, now, isAfter, projectPaths, readText, parseFrontMatter } from './core.mjs';
-import { ensureInit, loadConfig, saveConfig, sessionIdFromEnv, updateSession } from './project.mjs';
+import { ensureInit, isInitialized, ownerAllows, loadConfig, saveConfig, sessionIdFromEnv, updateSession } from './project.mjs';
 import {
   route, next, cancel, statusText, recordFact, top, beginTurn, savePhrase, CHECKS, ACTIONS, ROUTES,
 } from './runner.mjs';
@@ -308,7 +308,7 @@ function memoryCommand(ctx, sub, positional, opts) {
     case 'undo': {
       if (!id) refuse('Name the change: `flow memory undo <change id>`. Run `flow memory log` for ids.');
       // Undo is an owner command, checked the same way as the trust command.
-      if (session.turn?.undoPermission !== String(id).toLowerCase()) {
+      if (!ownerAllows(root, session, 'undo', String(id).toLowerCase())) {
         refuse(`Only the owner can undo a memory change. The owner types \`/second-brain-flow:memory-undo ${id}\`. Tell the owner that.`);
       }
       const h = undoChange(root, id);
@@ -378,7 +378,7 @@ function trustCommand(ctx, positional) {
   }
   const value = positional[1];
   if (!['on', 'off'].includes(value)) refuse('Run `flow trust set on` or `flow trust set off`.');
-  if (session.turn?.trustPermission !== value) {
+  if (!ownerAllows(root, session, 'trust', value)) {
     refuse(`Only the owner can change the memory mode. The owner types \`/second-brain-flow:trust ${value}\` to do it.`);
   }
   const mode = value === 'on' ? 'trusted' : 'onboarding';
@@ -463,6 +463,9 @@ export function run(argv, { cwd = process.cwd(), env = process.env, stdin = () =
     // `flow init` sets up the folder it runs in (or FLOW_PROJECT_ROOT). Walking
     // up would set up an outer repository when the project has no .git yet.
     const root = cmd === 'init' && !env.FLOW_PROJECT_ROOT ? path.resolve(cwd) : findProjectRoot(cwd, env);
+    if (cmd !== 'init' && !isInitialized(root)) {
+      refuse(`${root} is not set up for second-brain-flow. Run \`flow init\` in the project root first.`);
+    }
     const created = ensureInit(root);
     if (cmd === 'init') {
       return { code: 0, stdout: created ? `Set up memory/ and work/ in ${root}. Memory mode: onboarding.` : `Already set up in ${root}.`, stderr: '' };

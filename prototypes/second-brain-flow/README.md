@@ -170,6 +170,15 @@ Requirements and Open questions that flow cannot read.
 Front-matter block scalars (`title: >` and its indented lines) are kept as
 written, or replaced whole when the key is one flow owns.
 
+The project root is the session's: the hooks use `CLAUDE_PROJECT_DIR`, and the
+session start hook writes `FLOW_PROJECT_ROOT` next to `FLOW_SESSION_ID` for the
+`flow` command. The write gate protects that root's `memory/`, `work/`, and
+`.flow/` from any cwd. When the shell is inside a nested repository (a
+submodule, vendored repo, or worktree), automatic approval and owner-gated
+`flow` commands are refused. The owner's trust and undo commands are recorded
+by the prompt hook in `.flow/owner/`, which agents cannot write, and count only
+for the turn id that hook set.
+
 Every id given to `flow` (card, job, change, topic, item) is checked against
 its pattern before any path is built, and each path must stay inside its
 folder. A missing or unreadable time never counts as an owner reply.
@@ -285,8 +294,13 @@ not run again; its hook and skill did not change.
 - Claude Code also reads a plugin's `workflows/` folder, for workflow scripts.
   This plugin's `workflows/*.json` files are ignored there; the 2026-09-26 load
   showed no plugin errors.
-- The SessionStart hook sets up `memory/` and `work/` in any project where the
-  plugin is enabled.
+- The SessionStart hook sets up `memory/` and `work/` in the session's project
+  root (`CLAUDE_PROJECT_DIR`) wherever the plugin is enabled. Nothing else sets
+  up a project: other `flow` commands refuse with "run `flow init`".
+- A bare `flow` is auto-allowed through `CLAUDE_PLUGIN_ROOT/bin/flow` when the
+  hook's PATH has no `flow`. The Bash tool's PATH can differ from the hook's
+  (rc files can add folders), so a different `flow` earlier on the Bash PATH
+  would run under that approval.
 - The model still does the judgment steps, and enforcement exists only in
   Claude Code. One extra `flow route` call per turn is the cost of a
   deterministic start.
@@ -305,5 +319,5 @@ not run again; its hook and skill did not change.
 | [scripts/](scripts/make-demo.mjs) | `make-demo.mjs`, which rebuilds the demo through the engine. |
 | [skills/](skills/trust/SKILL.md) | `trust` and [`memory-undo`](skills/memory-undo/SKILL.md) (owner only), and [`flow`](skills/flow/SKILL.md) (help and current step). |
 | [templates/](templates/ITEM.md) | Item, topic, focus, and card templates. |
-| [tests/](tests/helpers.mjs) | Unit tests (`*.test.mjs`, including `review-fixes.test.mjs`, `review2-fixes.test.mjs`, and `review3-fixes.test.mjs` for the three 2026-09-26 reviews) and `e2e.mjs`. |
+| [tests/](tests/helpers.mjs) | Unit tests (`*.test.mjs`, one `review*-fixes.test.mjs` file for each of the four 2026-09-26 reviews) and `e2e.mjs`. |
 | [workflows/](workflows/turn.json) | One JSON definition per workflow. |
